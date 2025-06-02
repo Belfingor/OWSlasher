@@ -3,10 +3,10 @@
 
 #include "Items/Item.h"
 #include "OWSlasher/DebugMacros.h"
+#include "Components/SphereComponent.h"
 
 
 
-// Sets default values
 AItem::AItem()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -14,12 +14,18 @@ AItem::AItem()
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
 	RootComponent = ItemMesh;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	Sphere->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OutOfSphereOverlap);
 
 	int32 AvgInt = Avg<int32>(1, 3);
 	UE_LOG(LogTemp, Warning, TEXT("AVG of 1 and 3: %d"), AvgInt);
@@ -38,14 +44,37 @@ float AItem::TransformedCos()
 	return Amplitude * FMath::Cos(RunningTime * TimeConstant);
 }
 
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	const FString OtherActorName = OtherActor->GetName();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
+		UE_LOG(LogTemp, Warning, TEXT("In of Sphere: %s"), *OtherActorName);
+	}
+}
+
+
+void AItem::OutOfSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	const FString OtherActorName = OtherActor->GetName();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Green, OtherActorName);
+		UE_LOG(LogTemp, Warning, TEXT("Out of Sphere: %s"), *OtherActorName);
+	}
+}
+
 // Called every frame
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	RunningTime += DeltaTime;
+	RunningTime += DeltaTime; //Used for howering which is called in blueprint
+	
 
-	AddActorLocalRotation(FRotator(0.f, RotationSpeed * DeltaTime, 0.f));
 
-	DRAW_VECTOR_SINGLEFRAME(GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 100.f);
+	//AddActorLocalRotation(FRotator(0.f, RotationSpeed * DeltaTime, 0.f));
+	//DRAW_VECTOR_SINGLEFRAME(GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 100.f);
 }
 
