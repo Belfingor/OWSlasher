@@ -4,6 +4,7 @@
 #include "Items/Item.h"
 #include "OWSlasher/DebugMacros.h"
 #include "Components/SphereComponent.h"
+#include "Characters/MainCharacter.h"
 
 
 
@@ -25,7 +26,7 @@ void AItem::BeginPlay()
 	Super::BeginPlay();
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
-	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OutOfSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 
 	int32 AvgInt = Avg<int32>(1, 3);
 	UE_LOG(LogTemp, Warning, TEXT("AVG of 1 and 3: %d"), AvgInt);
@@ -47,22 +48,20 @@ float AItem::TransformedCos()
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FString OtherActorName = OtherActor->GetName();
-	if (GEngine)
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+	if (MainCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
-		UE_LOG(LogTemp, Warning, TEXT("In of Sphere: %s"), *OtherActorName);
+		MainCharacter->SetOverlappingItem(this);
 	}
 }
 
 
-void AItem::OutOfSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	const FString OtherActorName = OtherActor->GetName();
-	if (GEngine)
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+	if (MainCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Green, OtherActorName);
-		UE_LOG(LogTemp, Warning, TEXT("Out of Sphere: %s"), *OtherActorName);
+		MainCharacter->SetOverlappingItem(nullptr);
 	}
 }
 

@@ -25,5 +25,6 @@ void UMainCharAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	{
 		GroundSpeed = UKismetMathLibrary::VSizeXY(MainCharacterMovementComponent->Velocity);
 		isFalling = MainCharacterMovementComponent->IsFalling();
+		CharacterState = MainCharacter->GetCharacterState();
 	}
 }

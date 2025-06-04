@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "CharacterTypes.h"
 #include "MainCharacter.generated.h"
 
 
@@ -13,7 +14,7 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
-
+class AItem;
 
 UCLASS()
 class OWSLASHER_API AMainCharacter : public ACharacter
@@ -40,10 +41,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* EquipAction;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EKeyPressed(const FInputActionValue& Value);
 
 private:
+
+	ECharacterState CharacterState = ECharacterState::ECS_Unequiped;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
@@ -56,4 +63,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = Hair)
 	UGroomComponent* Eyebrows;
+
+	UPROPERTY(VisibleInstanceOnly)
+	AItem* OverlappingItem;
+
+public: //Setters and Getters
+	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 };
