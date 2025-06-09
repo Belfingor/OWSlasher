@@ -56,13 +56,14 @@ protected:
 
 	EItemState ItemState = EItemState::EIS_Hovering;
 
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* Sphere;
+
 private:
 
 	UPROPERTY(VisibleInstanceOnly, BluePrintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
 
-	UPROPERTY(VisibleAnywhere)
-	USphereComponent* Sphere;
 };
 
 template<typename T>
