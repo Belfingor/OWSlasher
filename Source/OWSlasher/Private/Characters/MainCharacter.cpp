@@ -84,7 +84,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
-	if (ActionState == EActionState::EAS_Attacking) return; // Prevent movement while attacking
+	if (ActionState != EActionState::EAS_Unoccupied) return; // Prevent movement while attacking
 	const FVector2D MovementVector = Value.Get<FVector2D>();	
 	if ((MovementVector.Y != 0.f)|| (MovementVector.X != 0.f) && GetController())
 	{
@@ -132,11 +132,13 @@ void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 	{
 		PlayEquipMontage(FName("Unequip"));
 		CharacterState = ECharacterState::ECS_Unequiped;
+		ActionState = EActionState::EAS_EquippingWeapon;
 	}
 	else if (CanArm())
 	{
 		PlayEquipMontage(FName("Equip"));
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		ActionState = EActionState::EAS_EquippingWeapon;
 	}
 }
 
@@ -209,5 +211,26 @@ bool AMainCharacter::CanArm()
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState == ECharacterState::ECS_Unequiped &&
 		EquipedWeapon;
+}
+
+void AMainCharacter::Disarm()
+{
+	if (EquipedWeapon)
+	{
+		EquipedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+	}
+}
+
+void AMainCharacter::Arm()
+{
+	if (EquipedWeapon)
+	{
+		EquipedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+	}
+}
+
+void AMainCharacter::FinishEquipping()
+{
+	ActionState = EActionState::EAS_Unoccupied;
 }
 
