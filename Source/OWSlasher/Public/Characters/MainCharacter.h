@@ -49,9 +49,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* FPressAction;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed(const FInputActionValue& Value);
+	void FKeyPressed(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 
 	//------------------------------------------------------Play Montage Fubnctions
