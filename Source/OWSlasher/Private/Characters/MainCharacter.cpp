@@ -49,18 +49,22 @@ void AMainCharacter::BeginPlay()
 	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
-
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(CharMappingContext, 0);
 		}
 	}
-
 }
 
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (ActionState == EActionState::EAS_MultiAttacking && isMultiAttacking)
+	{
+		AddMovementInput(GetActorForwardVector(), MultiAttackMoveSpeed * DeltaTime);
+		UE_LOG(LogTemp, Warning, TEXT("I WAS CALLED BITCH MOVE"));
+	}
 
 }
 
@@ -77,7 +81,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AMainCharacter::EKeyPressed);
 		EnhancedInputComponent->BindAction(FPressAction, ETriggerEvent::Triggered, this, &AMainCharacter::FKeyPressed);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
-		
+		EnhancedInputComponent->BindAction(MultiAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::MultiAttack);
 	}
 
 }
@@ -151,6 +155,21 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 	}	
 }
 
+void AMainCharacter::MultiAttack(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Multi Attack Called!"));
+	if (CanAttack())
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && AttackMontage)
+		{
+			AnimInstance->Montage_Play(AttackMontage);
+			AnimInstance->Montage_JumpToSection("MultiAttack", AttackMontage);
+		}
+		ActionState = EActionState::EAS_MultiAttacking;
+	}
+}
+
 //------------------------------------------------------Play Montage Fubnctions
 void AMainCharacter::PlayAttackMontage()
 {
@@ -187,7 +206,7 @@ void AMainCharacter::PlayEquipMontage(FName SectionName)
 	}
 }
 
-void AMainCharacter::AttackEnd()
+void AMainCharacter::AttackEnd() // Calling it in Attack Anim Montage as notify
 {
 	ActionState = EActionState::EAS_Unoccupied;
 }
@@ -232,5 +251,15 @@ void AMainCharacter::Arm()
 void AMainCharacter::FinishEquipping()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::StartMultiAttackMovement()
+{
+	isMultiAttacking = true;
+}
+
+void AMainCharacter::EndMultiAttackMovement()
+{
+	isMultiAttacking = false;
 }
 

@@ -50,6 +50,9 @@ protected:
 	UInputAction* AttackAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MultiAttackAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* FPressAction;
 
 	void Move(const FInputActionValue& Value);
@@ -57,6 +60,7 @@ protected:
 	void EKeyPressed(const FInputActionValue& Value);
 	void FKeyPressed(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void MultiAttack(const FInputActionValue& Value);
 
 	//------------------------------------------------------Play Montage Fubnctions
 	void PlayAttackMontage();
@@ -76,6 +80,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
+
+	UFUNCTION(BlueprintCallable)
+	void StartMultiAttackMovement();
+
+	UFUNCTION(BlueprintCallable)
+	void EndMultiAttackMovement();
 
 	//-----------------------------------------------------------------------------
 
@@ -112,8 +122,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
-	//-----------------------------------------------------------------------------
 
+	float MultiAttackMoveSpeed = 25.f;
+	bool isMultiAttacking = false;
+	//-----------------------------------------------------------------------------
+	
 public: //Setters and Getters
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }

@@ -28,7 +28,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float GroundSpeed = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 	bool isFalling;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement | CharacterState")
