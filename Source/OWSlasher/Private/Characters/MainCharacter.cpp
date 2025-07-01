@@ -12,6 +12,7 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
 
 
 
@@ -41,6 +42,14 @@ AMainCharacter::AMainCharacter()
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("Head");
 
+}
+
+void AMainCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
+{
+	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
+	{
+		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
+	}
 }
 
 void AMainCharacter::BeginPlay()
@@ -126,7 +135,7 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
-		EquipedWeapon = OverlappingWeapon;
+		EquippedWeapon = OverlappingWeapon;
 	}
 }
 
@@ -195,7 +204,7 @@ void AMainCharacter::PlayAttackMontage()
 	}
 }
 
-void AMainCharacter::PlayEquipMontage(FName SectionName)
+void AMainCharacter::PlayEquipMontage(const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
@@ -205,6 +214,7 @@ void AMainCharacter::PlayEquipMontage(FName SectionName)
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
 }
+//-----------------------------------------------------------------------------
 
 void AMainCharacter::AttackEnd() // Calling it in Attack Anim Montage as notify
 {
@@ -229,37 +239,27 @@ bool AMainCharacter::CanArm()
 {
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState == ECharacterState::ECS_Unequiped &&
-		EquipedWeapon;
+		EquippedWeapon;
 }
 
 void AMainCharacter::Disarm()
 {
-	if (EquipedWeapon)
+	if (EquippedWeapon)
 	{
-		EquipedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
 	}
 }
 
 void AMainCharacter::Arm()
 {
-	if (EquipedWeapon)
+	if (EquippedWeapon)
 	{
-		EquipedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
 	}
 }
 
 void AMainCharacter::FinishEquipping()
 {
 	ActionState = EActionState::EAS_Unoccupied;
-}
-
-void AMainCharacter::StartMultiAttackMovement()
-{
-	isMultiAttacking = true;
-}
-
-void AMainCharacter::EndMultiAttackMovement()
-{
-	isMultiAttacking = false;
 }
 

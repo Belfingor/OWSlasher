@@ -28,6 +28,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -68,7 +71,7 @@ protected:
 	void AttackEnd();
 	bool CanAttack();
 
-	void PlayEquipMontage(FName SectionName);
+	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
 	bool CanArm();
 
@@ -80,12 +83,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
-
-	UFUNCTION(BlueprintCallable)
-	void StartMultiAttackMovement();
-
-	UFUNCTION(BlueprintCallable)
-	void EndMultiAttackMovement();
 
 	//-----------------------------------------------------------------------------
 
@@ -114,7 +111,7 @@ private:
 	AItem* OverlappingItem;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	AWeapon* EquipedWeapon;
+	AWeapon* EquippedWeapon;
 
 	//-----------------------------------------------------------Animation Montages
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
