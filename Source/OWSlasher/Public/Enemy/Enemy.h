@@ -30,14 +30,17 @@ private:
 	UAnimMontage* HitReactMontage;
 	//-----------------------------------------------------------------------------
 
+	UPROPERTY(EditAnywhere, Category = Sounds)
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = VisualEffects)
+	UParticleSystem* HitParticles;
+
 protected:
 	virtual void BeginPlay() override;
 
 	//------------------------------------------------------Play Montage Fubnctions
 	void PlayHitReactMontage(const FName& SectionName);
 	//-----------------------------------------------------------------------------
-
-public:	
-
 
 };
