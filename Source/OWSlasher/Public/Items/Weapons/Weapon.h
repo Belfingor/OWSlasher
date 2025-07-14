@@ -28,6 +28,9 @@ protected:
 
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFields(const FVector& FieldLocation); //No definition in .cpp; This function implemented in Weapon BLueprint.
 private:
 	UPROPERTY (EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
