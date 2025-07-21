@@ -37,12 +37,16 @@ void ABreakableActor::Tick(float DeltaTime)
 
 void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
+	if (bBroken) return;
+	bBroken = true;
 	UWorld* World = GetWorld();
-	if (World && TreasureClass)
+	if (World && TreasureClasses.Num() > 0)
 	{
 		FVector Location = GetActorLocation();
 		Location.Z += 75.f;
-		World->SpawnActor<ATreasure>(TreasureClass, Location, GetActorRotation()); // we want to spawn an Actor based on BP, not a CPP class. As it does not have any mesh data etc.
+
+		int32 Selection = FMath::RandRange(0, TreasureClasses.Num() - 1);
+		World->SpawnActor<ATreasure>(TreasureClasses[Selection], Location, GetActorRotation()); // we want to spawn an Actor based on BP, not a CPP class. As it does not have any mesh data etc.
 	}
 }
 	

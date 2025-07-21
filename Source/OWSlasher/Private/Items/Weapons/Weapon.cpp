@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -26,13 +27,16 @@ AWeapon::AWeapon()
 
 void AWeapon::BeginPlay()
 {
-	Super::BeginPlay(); //Needs to be called for all overriden functions (ensures to call parent's function)
+	Super::BeginPlay(); // Needs to be called for all overriden functions (ensures to call parent's function)
 	WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
 
 }
 
-void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
+void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
 {
+	SetOwner(NewOwner);
+	SetInstigator(NewInstigator); // Set up owner and Instigator to this actor so we can track these values in damage functions
+
 	AttachMeshToSocket(InParent, InSocketName);
 	ItemState = EItemState::EIS_Equipped;
 
@@ -40,10 +44,13 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
 	}
-
 	if (Sphere)
 	{
 		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (EmbersEffect)
+	{
+		EmbersEffect->Deactivate();
 	}
 }
 
@@ -112,5 +119,7 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		IgnoreActors.AddUnique(BoxHit.GetActor());
 
 		CreateFields(BoxHit.ImpactPoint);
+
+		UGameplayStatics::ApplyDamage(BoxHit.GetActor(), Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 	}
 }

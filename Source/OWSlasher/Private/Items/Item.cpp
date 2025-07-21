@@ -5,6 +5,7 @@
 #include "OWSlasher/DebugMacros.h"
 #include "Components/SphereComponent.h"
 #include "Characters/MainCharacter.h"
+#include "NiagaraComponent.h"
 
 
 
@@ -18,6 +19,9 @@ AItem::AItem()
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
+
+	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	EmbersEffect->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned

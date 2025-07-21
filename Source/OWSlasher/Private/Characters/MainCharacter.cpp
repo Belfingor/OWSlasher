@@ -73,7 +73,6 @@ void AMainCharacter::Tick(float DeltaTime)
 	if (ActionState == EActionState::EAS_MultiAttacking && isMultiAttacking)
 	{
 		AddMovementInput(GetActorForwardVector(), MultiAttackMoveSpeed * DeltaTime);
-		UE_LOG(LogTemp, Warning, TEXT("I WAS CALLED BITCH MOVE"));
 	}
 
 }
@@ -86,14 +85,12 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMainCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMainCharacter::Look);
-
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMainCharacter::Jump);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AMainCharacter::EKeyPressed);
 		EnhancedInputComponent->BindAction(FPressAction, ETriggerEvent::Triggered, this, &AMainCharacter::FKeyPressed);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		EnhancedInputComponent->BindAction(MultiAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::MultiAttack);
 	}
-
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
@@ -133,7 +130,7 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
 		EquippedWeapon = OverlappingWeapon;
