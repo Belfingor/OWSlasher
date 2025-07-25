@@ -7,7 +7,6 @@ UAttributeComponent::UAttributeComponent()
 
 }
 
-
 void UAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -24,10 +23,14 @@ float UAttributeComponent::GetHealthPercent()
 	return Health / MaxHealth;
 }
 
-
 void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+bool UAttributeComponent::IsAlive()
+{
+	return Health > 0.f;
 }
 
