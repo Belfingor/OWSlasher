@@ -65,8 +65,9 @@ protected:
 	void Attack(const FInputActionValue& Value);
 	void MultiAttack(const FInputActionValue& Value);
 
-	//------------------------------------------------------Play Montage Fubnctions
-	void PlayAttackMontage();
+	//------------------------------------------------------Play Montage Functions
+	void PlayAttackMontage(bool isMultiAttack);
+	void PlayTwoHandedAttackMontage(bool isMultiAttack);
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 	bool CanAttack();
@@ -118,9 +119,11 @@ private:
 	UAnimMontage* AttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UAnimMontage* TwoHandedAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
 
-	float MultiAttackMoveSpeed = 25.f;
 	bool isMultiAttacking = false;
 	//-----------------------------------------------------------------------------
 	

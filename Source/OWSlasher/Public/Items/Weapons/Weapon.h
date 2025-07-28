@@ -8,9 +8,15 @@
 
 class USoundBase;
 class UBoxComponent;
-/**
- * 
- */
+
+
+UENUM(BlueprintType)
+enum class EWeaponType : uint8 //This type will be set in BP for each weapon so we can check which one we are working with
+{
+	EWT_OneHanded UMETA(DisplayName = "OneHandedWeapon"),
+	EWT_TwoHanded UMETA(DisplayName = "TwoHandedWeapon")
+};
+
 UCLASS()
 class OWSLASHER_API AWeapon : public AItem
 {
@@ -44,7 +50,12 @@ private:
 	USceneComponent* BoxTraceEnd;
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	EWeaponType WeaponType;
 public:
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	TArray<AActor*> IgnoreActors;
+
+	EWeaponType GetWeaponType() { return WeaponType; }
 };

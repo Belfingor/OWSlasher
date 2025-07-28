@@ -70,11 +70,6 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (ActionState == EActionState::EAS_MultiAttacking && isMultiAttacking)
-	{
-		AddMovementInput(GetActorForwardVector(), MultiAttackMoveSpeed * DeltaTime);
-	}
-
 }
 
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -128,10 +123,28 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 {
 	// pick up and item if overlapping it
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+	FName HandSocketName;
+
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		switch (OverlappingWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_OneHanded:
+			HandSocketName = FName("RightHandSocket");
+			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+			/*Going to set up CharacterState in this switch case for now.
+			If it causes any bugs in the future with overlapping 2 or more items this could be the reason.
+			Will have to set up CharacterState in Equip() then*/
+			break;
+		case EWeaponType::EWT_TwoHanded:
+			HandSocketName = FName("RightHandSocketTwoHanded");
+			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+			break;
+		default:
+			break;
+		}
+
+		OverlappingWeapon->Equip(GetMesh(), HandSocketName, this, this);
 		OverlappingItem = nullptr;
 		EquippedWeapon = OverlappingWeapon;
 	}
@@ -144,6 +157,7 @@ void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 		PlayEquipMontage(FName("Unequip"));
 		CharacterState = ECharacterState::ECS_Unequiped;
 		ActionState = EActionState::EAS_EquippingWeapon;
+		// TODO Will check what weapon we have (OneHanded/TwoHanded) and will play proper Montage section accordingly
 	}
 	else if (CanArm())
 	{
@@ -157,32 +171,52 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 {
 	if (CanAttack())
 	{
-		PlayAttackMontage();
-		ActionState = EActionState::EAS_Attacking;
-	}	
+		switch (CharacterState)
+		{
+		case ECharacterState::ECS_EquippedOneHandedWeapon:
+			PlayAttackMontage(false);
+			ActionState = EActionState::EAS_Attacking;
+			break;
+		case ECharacterState::ECS_EquippedTwoHandedWeapon:
+			PlayTwoHandedAttackMontage(false);
+			ActionState = EActionState::EAS_Attacking;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Multi Attack Called!"));
 	if (CanAttack())
 	{
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && AttackMontage)
+		switch (CharacterState)
 		{
-			AnimInstance->Montage_Play(AttackMontage);
-			AnimInstance->Montage_JumpToSection("MultiAttack", AttackMontage);
+		case ECharacterState::ECS_EquippedOneHandedWeapon:
+			PlayAttackMontage(true);
+			ActionState = EActionState::EAS_MultiAttacking;
+			break;
+		case ECharacterState::ECS_EquippedTwoHandedWeapon:
+			PlayTwoHandedAttackMontage(true);
+			ActionState = EActionState::EAS_MultiAttacking;
+			break;
+		default:
+			break;
 		}
-		ActionState = EActionState::EAS_MultiAttacking;
 	}
 }
 
 //------------------------------------------------------Play Montage Fubnctions
-void AMainCharacter::PlayAttackMontage()
+void AMainCharacter::PlayAttackMontage(bool isMultiAttack)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-
-	if (AnimInstance && AttackMontage)
+	if (isMultiAttack && AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+		AnimInstance->Montage_JumpToSection("MultiAttack", AttackMontage);
+	}
+	else if (!isMultiAttack && AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
 		const int32 Selection = FMath::RandRange(0, 1);
@@ -198,8 +232,25 @@ void AMainCharacter::PlayAttackMontage()
 		default:
 			break;
 		}
-		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);	
 	}
+}
+
+void AMainCharacter::PlayTwoHandedAttackMontage(bool isMultiAttack)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (isMultiAttack && AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(TwoHandedAttackMontage);
+		AnimInstance->Montage_JumpToSection(FName("MultiHit"), TwoHandedAttackMontage);
+	}
+	else if (!isMultiAttack && AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(TwoHandedAttackMontage);
+		AnimInstance->Montage_JumpToSection(FName("SingleHit"), TwoHandedAttackMontage);	
+	}
+	
 }
 
 void AMainCharacter::PlayEquipMontage(const FName& SectionName)
