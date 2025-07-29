@@ -31,12 +31,6 @@ void AItem::BeginPlay()
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
-
-	int32 AvgInt = Avg<int32>(1, 3);
-	UE_LOG(LogTemp, Warning, TEXT("AVG of 1 and 3: %d"), AvgInt);
-
-	float AvgFloat = Avg<float>(3.653f, 4.234f);
-	UE_LOG(LogTemp, Warning, TEXT("AVG of 3.653, 4.234: %f"), AvgFloat);
 }
 
 float AItem::TransformedSin()

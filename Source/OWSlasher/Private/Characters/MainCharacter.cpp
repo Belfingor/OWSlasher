@@ -152,18 +152,36 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 
 void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 {
-	if (CanDisarm())
+
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
 	{
-		PlayEquipMontage(FName("Unequip"));
-		CharacterState = ECharacterState::ECS_Unequiped;
-		ActionState = EActionState::EAS_EquippingWeapon;
-		// TODO Will check what weapon we have (OneHanded/TwoHanded) and will play proper Montage section accordingly
+		if (CanDisarm())
+		{
+			PlayEquipMontage(FName("Unequip"));
+			CharacterState = ECharacterState::ECS_Unequiped;
+			ActionState = EActionState::EAS_EquippingWeapon;
+		}
+		else if (CanArm())
+		{
+			PlayEquipMontage(FName("Equip"));
+			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+			ActionState = EActionState::EAS_EquippingWeapon;
+		}
 	}
-	else if (CanArm())
+	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
 	{
-		PlayEquipMontage(FName("Equip"));
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		ActionState = EActionState::EAS_EquippingWeapon;
+		if (CanDisarm())
+		{
+			PlayEquipMontage(FName("UnequipTwoHanded"));
+			CharacterState = ECharacterState::ECS_Unequiped;
+			ActionState = EActionState::EAS_EquippingWeapon;
+		}
+		else if (CanArm())
+		{
+			PlayEquipMontage(FName("EquipTwoHanded"));
+			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+			ActionState = EActionState::EAS_EquippingWeapon;
+		}
 	}
 }
 
@@ -295,15 +313,38 @@ void AMainCharacter::Disarm()
 {
 	if (EquippedWeapon)
 	{
-		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+		EWeaponType WeaponType = EquippedWeapon->GetWeaponType();
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_OneHanded:
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+			break;
+		case EWeaponType::EWT_TwoHanded:
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocketTwoHanded"));
+			UE_LOG(LogTemp, Warning, TEXT("Trying to attach the thing to spine socket"));
+			break;
+		default:
+			break;
+		}
 	}
 }
 
 void AMainCharacter::Arm()
 {
 	if (EquippedWeapon)
-	{
-		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+	{	
+		EWeaponType WeaponType = EquippedWeapon->GetWeaponType();
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_OneHanded:
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+			break;
+		case EWeaponType::EWT_TwoHanded:
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocketTwoHanded"));
+			break;
+		default:
+			break;
+		}
 	}
 }
 

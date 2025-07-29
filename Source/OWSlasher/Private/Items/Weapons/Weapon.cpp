@@ -30,6 +30,18 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay(); // Needs to be called for all overriden functions (ensures to call parent's function)
 	WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
 
+	EWeaponType Type = GetWeaponType();
+	switch (Type)
+	{
+	case EWeaponType::EWT_OneHanded:
+		Damage = 20.f;
+		break;
+	case EWeaponType::EWT_TwoHanded:
+		Damage = 30.f;
+		break;
+	default:
+		break;
+	}
 }
 
 void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
