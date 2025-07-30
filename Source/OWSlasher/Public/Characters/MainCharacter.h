@@ -65,7 +65,7 @@ protected:
 	void Attack(const FInputActionValue& Value);
 	void MultiAttack(const FInputActionValue& Value);
 
-	//------------------------------------------------------Play Montage Functions
+	//-------------------------Play Montage Functions-----------------------------
 	void PlayAttackMontage(bool isMultiAttack);
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
 	UFUNCTION(BlueprintCallable)
@@ -84,11 +84,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
-
 	//-----------------------------------------------------------------------------
 
 private:
-	//-----------------------------------------------------------------------States
+	//--------------------------------States---------------------------------------
 	ECharacterState CharacterState = ECharacterState::ECS_Unequiped;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -114,7 +113,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	AWeapon* EquippedWeapon;
 
-	//-----------------------------------------------------------Animation Montages
+	//---------------------------Animation Montages--------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* AttackMontage;
 
