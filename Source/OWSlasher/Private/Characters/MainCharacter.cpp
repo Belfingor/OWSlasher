@@ -64,6 +64,8 @@ void AMainCharacter::BeginPlay()
 			Subsystem->AddMappingContext(CharMappingContext, 0);
 		}
 	}
+
+	Tags.Add(FName("MainCharacter"));
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -123,21 +125,19 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 {
 	// pick up and item if overlapping it
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
-	FName HandSocketName;
+	FName HandSocketName ("RightHandSocket");
 
 	if (OverlappingWeapon)
 	{
 		switch (OverlappingWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_OneHanded:
-			HandSocketName = FName("RightHandSocket");
 			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 			/*Going to set up CharacterState in this switch case for now.
 			If it causes any bugs in the future with overlapping 2 or more items this could be the reason.
 			Will have to set up CharacterState in Equip() then*/
 			break;
 		case EWeaponType::EWT_TwoHanded:
-			HandSocketName = FName("RightHandSocketTwoHanded");
 			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
 			break;
 		default:
@@ -314,18 +314,7 @@ void AMainCharacter::Disarm()
 	if (EquippedWeapon)
 	{
 		EWeaponType WeaponType = EquippedWeapon->GetWeaponType();
-		switch (WeaponType)
-		{
-		case EWeaponType::EWT_OneHanded:
-			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
-			break;
-		case EWeaponType::EWT_TwoHanded:
-			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocketTwoHanded"));
-			UE_LOG(LogTemp, Warning, TEXT("Trying to attach the thing to spine socket"));
-			break;
-		default:
-			break;
-		}
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
 	}
 }
 
@@ -334,17 +323,7 @@ void AMainCharacter::Arm()
 	if (EquippedWeapon)
 	{	
 		EWeaponType WeaponType = EquippedWeapon->GetWeaponType();
-		switch (WeaponType)
-		{
-		case EWeaponType::EWT_OneHanded:
-			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
-			break;
-		case EWeaponType::EWT_TwoHanded:
-			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocketTwoHanded"));
-			break;
-		default:
-			break;
-		}
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
 	}
 }
 

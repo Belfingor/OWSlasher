@@ -11,6 +11,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarComponent;
+class UPawnSensingComponent;
 
 UCLASS()
 class OWSLASHER_API AEnemy : public ACharacter, public IHitInterface
@@ -30,11 +31,16 @@ public:
 
 
 private:
+
+	//-------------------------------Components------------------------------------
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* PawnSensing;
 
 	//------------------------------Animation Montages-----------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
@@ -57,6 +63,9 @@ private:
 	double CombatRadius = 500.f;
 
 	UPROPERTY(EditAnywhere)
+	double AttackRadius = 150.f;
+
+	UPROPERTY(EditAnywhere)
 	double PatrolRadius = 200.f;
 
 	//----------------------------------Navigation---------------------------------
@@ -76,6 +85,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float WaitMin = 5.f;
 	float WaitMax = 10.f;
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+
+	const float PatrolingMoveSpeed = 150.f;
+	const float ChasingMoveSpeed = 400.f;
 	//-----------------------------------------------------------------------------
 
 protected:
@@ -84,6 +98,8 @@ protected:
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
+	UFUNCTION() //bound with delegate in PawnSensingComponent, needs UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
 	//----------------------------Play Montage Functions--------------------------
 	void PlayHitReactMontage(const FName& SectionName);
 	//-----------------------------------------------------------------------------
