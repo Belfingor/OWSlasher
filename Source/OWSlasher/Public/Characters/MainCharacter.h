@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "InputActionValue.h"
+#include "BaseCharacter.h"
 #include "CharacterTypes.h"
 #include "MainCharacter.generated.h"
 
@@ -16,10 +15,10 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
-class AWeapon;
+
 
 UCLASS()
-class OWSLASHER_API AMainCharacter : public ACharacter
+class OWSLASHER_API AMainCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -28,8 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -58,19 +56,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* FPressAction;
 
+	//-------------------------Callbacks for input--------------------------------
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed(const FInputActionValue& Value);
 	void FKeyPressed(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
+	virtual void Attack(const FInputActionValue& Value) override;
 	void MultiAttack(const FInputActionValue& Value);
-
 	//-------------------------Play Montage Functions-----------------------------
-	void PlayAttackMontage(bool isMultiAttack);
+	virtual void PlayAttackMontage(bool isMultiAttack) override;
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
-	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
-	bool CanAttack();
+	virtual void AttackEnd() override;
+	virtual bool CanAttack() override;
 
 	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
@@ -109,21 +106,12 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
-
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	AWeapon* EquippedWeapon;
-
 	//---------------------------Animation Montages--------------------------------
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* AttackMontage;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* TwoHandedAttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
-
-	bool isMultiAttacking = false;
 	//-----------------------------------------------------------------------------
 	
 public: //Setters and Getters

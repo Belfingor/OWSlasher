@@ -44,15 +44,6 @@ AMainCharacter::AMainCharacter()
 
 }
 
-void AMainCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
-	{
-		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->IgnoreActors.Empty();
-	}
-}
-
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -185,8 +176,9 @@ void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 	}
 }
 
-void AMainCharacter::Attack(const FInputActionValue& Value)
+void AMainCharacter::Attack(const FInputActionValue& Value) 
 {
+	Super::Attack(Value);
 	if (CanAttack())
 	{
 		switch (CharacterState)
