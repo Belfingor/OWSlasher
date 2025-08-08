@@ -228,33 +228,16 @@ void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 }
 
 //---------------------------Play Montage Functions---------------------------
-void AMainCharacter::PlayAttackMontage(bool isMultiAttack)
+int32 AMainCharacter::PlayAttackMontage(bool isMultiAttack)
 {
 	Super::PlayAttackMontage(isMultiAttack);
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (isMultiAttack && AnimInstance && AttackMontage)
+	if (isMultiAttack && AnimInstance && AttackMontage) // Other montage sections are stored in array, multi attack is stored separately. Most likely will create separate AnimMontage for multiattacks
 	{
 		AnimInstance->Montage_Play(AttackMontage);
 		AnimInstance->Montage_JumpToSection("MultiAttack", AttackMontage);
 	}
-	else if (!isMultiAttack && AnimInstance && AttackMontage)
-	{
-		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 1);
-		FName SectionName = FName();
-		switch (Selection)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		default:
-			break;
-		}
-		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);	
-	}
+	return -1;
 }
 
 void AMainCharacter::PlayTwoHandedAttackMontage(bool isMultiAttack)

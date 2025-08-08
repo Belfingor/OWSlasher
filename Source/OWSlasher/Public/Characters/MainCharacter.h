@@ -64,7 +64,7 @@ protected:
 	virtual void Attack(const FInputActionValue& Value) override;
 	void MultiAttack(const FInputActionValue& Value);
 	//-------------------------Play Montage Functions-----------------------------
-	virtual void PlayAttackMontage(bool isMultiAttack) override;
+	virtual int32 PlayAttackMontage(bool isMultiAttack) override;
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;

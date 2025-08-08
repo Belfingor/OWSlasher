@@ -101,14 +101,17 @@ protected:
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
 	virtual void Attack() override;
-	virtual void PlayAttackMontage(bool isMultiAttack = false) override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override;
+	virtual int32 PlayDeathMontage() override;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float DeathLifeSpan = 8.f;
 
 	UFUNCTION() //bound with delegate in PawnSensingComponent, needs UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);
 	UPROPERTY (BlueprintReadOnly)
-	EDeathPose DeathPose;
+	TEnumAsByte<EDeathPose> DeathPose;
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
