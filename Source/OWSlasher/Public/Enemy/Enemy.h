@@ -17,29 +17,23 @@ class OWSLASHER_API AEnemy : public ABaseCharacter
 
 public:
 	AEnemy();
-
 	virtual void Tick(float DeltaTime) override;
 	void CheckPatrolTarget();
 	void CheckCombatTarget();
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+	virtual void Destroyed() override;
 
 private:
-
 	//-------------------------------Components------------------------------------
-
-
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
 
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
 
-	//------------------------------Animation Montages-----------------------------
-
-
-	//-----------------------------------------------------------------------------
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AWeapon> WeaponClass;
 
 	UPROPERTY() //Just to ensure it does not start uninitialised
 	AActor* CombatTarget;
@@ -71,11 +65,34 @@ private:
 	float WaitMin = 5.f;
 	float WaitMax = 10.f;
 
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+	//----------------------------------AI Behaviour-------------------------------
+	void HideHealthBar();
+	void ShowHealthBar();
+	void LoseInterest();
+	void StartPatroling();
+	void ChaseTarget();
+	void ClearPatrolTimer();
+	bool IsOutsideCombatRadius();
+	bool IsOutsideAttackRadius();
+	bool IsInsideAttackRadius();
+	bool IsChasing();
+	bool IsAttacking();
+	bool IsDead();
+	bool IsEngaged();
+	//------------------------------------Combat-----------------------------------
+	void StartAttackTimer();
+	void ClearAttackTimer();
 
-	const float PatrolingMoveSpeed = 150.f;
-	const float ChasingMoveSpeed = 400.f;
-	//-----------------------------------------------------------------------------
+	FTimerHandle AttackTimer;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackTimerMin = 0.5f;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackTimerMax = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = Combat) 
+	float PatrolingMoveSpeed = 130.f;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float ChasingMoveSpeed = 400.f;
 
 protected:
 	virtual void BeginPlay() override;
@@ -83,8 +100,16 @@ protected:
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
+	virtual void Attack() override;
+	virtual void PlayAttackMontage(bool isMultiAttack = false) override;
+	virtual bool CanAttack() override;
+	virtual void HandleDamage(float DamageAmount) override;
+
 	UFUNCTION() //bound with delegate in PawnSensingComponent, needs UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);
 	UPROPERTY (BlueprintReadOnly)
-	EDeathPose DeathPose = EDeathPose::EDP_Alive;
+	EDeathPose DeathPose;
+
+	UPROPERTY(BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 };

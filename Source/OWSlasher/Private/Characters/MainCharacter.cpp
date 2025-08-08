@@ -195,12 +195,22 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 			break;
 		}
 	}
+	//----------------------------------------------------------------------------- temp solution to rotate character when attacking
+	const FRotator ControlRotation = GetControlRotation();
+	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
+	SetActorRotation(YawRotation);
+	//-----------------------------------------------------------------------------
 }
 
 void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 {
 	if (CanAttack())
 	{
+		//----------------------------------------------------------------------------- temp solution to rotate character when attacking
+		const FRotator ControlRotation = GetControlRotation(); 
+		const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
+		SetActorRotation(YawRotation);
+		//-----------------------------------------------------------------------------
 		switch (CharacterState)
 		{
 		case ECharacterState::ECS_EquippedOneHandedWeapon:
@@ -217,9 +227,10 @@ void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 	}
 }
 
-//------------------------------------------------------Play Montage Fubnctions
+//---------------------------Play Montage Functions---------------------------
 void AMainCharacter::PlayAttackMontage(bool isMultiAttack)
 {
+	Super::PlayAttackMontage(isMultiAttack);
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (isMultiAttack && AnimInstance && AttackMontage)
 	{

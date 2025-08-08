@@ -29,16 +29,17 @@ protected:
 	virtual void Attack(); //For Enemy to inherit
 	virtual void Die();
 
-	//---------------------------Play Montage Functions----------------------------
 	virtual void PlayAttackMontage(bool isMultiAttack = false);
 	void PlayHitReactMontage(const FName& SectionName);
 	void DirectionalHitReact(const FVector& ImpactPoint);
-	//-----------------------------------------------------------------------------
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+	virtual void HandleDamage(float DamageAmount);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
 	virtual bool CanAttack();
-
+	bool IsAlive();
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	AWeapon* EquippedWeapon;
@@ -55,9 +56,9 @@ protected:
 	UAnimMontage* DeathMontage;
 	//-----------------------------------------------------------------------------
 
+private:
 	UPROPERTY(EditAnywhere, Category = Sounds)
 	USoundBase* HitSound;
-
 	UPROPERTY(EditAnywhere, Category = VisualEffects)
 	UParticleSystem* HitParticles;
 
