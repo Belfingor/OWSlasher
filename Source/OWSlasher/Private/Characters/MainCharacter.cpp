@@ -12,8 +12,6 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
-#include "Components/BoxComponent.h"
-
 
 
 AMainCharacter::AMainCharacter()
@@ -44,21 +42,6 @@ AMainCharacter::AMainCharacter()
 
 }
 
-void AMainCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(CharMappingContext, 0);
-		}
-	}
-
-	Tags.Add(FName("MainCharacter"));
-}
-
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -79,6 +62,21 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		EnhancedInputComponent->BindAction(MultiAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::MultiAttack);
 	}
+}
+
+void AMainCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(CharMappingContext, 0);
+		}
+	}
+
+	Tags.Add(FName("MainCharacter"));
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
@@ -120,24 +118,7 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 
 	if (OverlappingWeapon)
 	{
-		switch (OverlappingWeapon->GetWeaponType())
-		{
-		case EWeaponType::EWT_OneHanded:
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-			/*Going to set up CharacterState in this switch case for now.
-			If it causes any bugs in the future with overlapping 2 or more items this could be the reason.
-			Will have to set up CharacterState in Equip() then*/
-			break;
-		case EWeaponType::EWT_TwoHanded:
-			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
-			break;
-		default:
-			break;
-		}
-
-		OverlappingWeapon->Equip(GetMesh(), HandSocketName, this, this);
-		OverlappingItem = nullptr;
-		EquippedWeapon = OverlappingWeapon;
+		EquipWeapon(OverlappingWeapon, HandSocketName);
 	}
 }
 
@@ -146,33 +127,14 @@ void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 
 	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
 	{
-		if (CanDisarm())
-		{
-			PlayEquipMontage(FName("Unequip"));
-			CharacterState = ECharacterState::ECS_Unequiped;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
-		else if (CanArm())
-		{
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
+		if (CanDisarm()) Disarm();
+		else if (CanArm()) Arm();
+
 	}
 	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
 	{
-		if (CanDisarm())
-		{
-			PlayEquipMontage(FName("UnequipTwoHanded"));
-			CharacterState = ECharacterState::ECS_Unequiped;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
-		else if (CanArm())
-		{
-			PlayEquipMontage(FName("EquipTwoHanded"));
-			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
+		if (CanDisarm()) Disarm();
+		else if (CanArm()) Arm();
 	}
 }
 
@@ -227,7 +189,6 @@ void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 	}
 }
 
-//---------------------------Play Montage Functions---------------------------
 int32 AMainCharacter::PlayAttackMontage(bool isMultiAttack)
 {
 	Super::PlayAttackMontage(isMultiAttack);
@@ -267,7 +228,25 @@ void AMainCharacter::PlayEquipMontage(const FName& SectionName)
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
 }
-//-----------------------------------------------------------------------------
+
+void AMainCharacter::EquipWeapon(AWeapon* Weapon, FName &HandSocketName)
+{
+	switch (Weapon->GetWeaponType())
+	{
+	case EWeaponType::EWT_OneHanded:
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		break;
+	case EWeaponType::EWT_TwoHanded:
+		CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+		break;
+	default:
+		break;
+	}
+
+	Weapon->Equip(GetMesh(), HandSocketName, this, this);
+	OverlappingItem = nullptr;
+	EquippedWeapon = Weapon;
+}
 
 void AMainCharacter::AttackEnd() // Calling it in Attack Anim Montage as notify
 {
@@ -295,7 +274,39 @@ bool AMainCharacter::CanArm()
 		EquippedWeapon;
 }
 
+void AMainCharacter::Arm()
+{
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
+	{
+		PlayEquipMontage(FName("Equip"));
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		ActionState = EActionState::EAS_EquippingWeapon;
+	}
+	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
+	{
+		PlayEquipMontage(FName("EquipTwoHanded"));
+		CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+		ActionState = EActionState::EAS_EquippingWeapon;
+	}
+}
+
 void AMainCharacter::Disarm()
+{
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
+	{
+		PlayEquipMontage(FName("Unequip"));
+		CharacterState = ECharacterState::ECS_Unequiped;
+		ActionState = EActionState::EAS_EquippingWeapon;
+	}
+	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
+	{
+		PlayEquipMontage(FName("UnequipTwoHanded"));
+		CharacterState = ECharacterState::ECS_Unequiped;
+		ActionState = EActionState::EAS_EquippingWeapon;
+	}	
+}
+
+void AMainCharacter::AttachWeaponToBack()
 {
 	if (EquippedWeapon)
 	{
@@ -304,7 +315,7 @@ void AMainCharacter::Disarm()
 	}
 }
 
-void AMainCharacter::Arm()
+void AMainCharacter::AttachWeaponToHand()
 {
 	if (EquippedWeapon)
 	{	

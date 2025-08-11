@@ -27,11 +27,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
-
 protected:
 	virtual void BeginPlay() override;
-
+	//-------------------------------Input Maping----------------------------------
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* CharMappingContext;
 
@@ -55,7 +53,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* FPressAction;
-
 	//-------------------------Callbacks for input--------------------------------
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -66,22 +63,22 @@ protected:
 	//-------------------------Play Montage Functions-----------------------------
 	virtual int32 PlayAttackMontage(bool isMultiAttack) override;
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
+	void PlayEquipMontage(const FName& SectionName);
+	//---------------------------------Combat-------------------------------------
+	void EquipWeapon(AWeapon* Weapon, FName& HandSocketName);
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;
-
-	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
 	bool CanArm();
-
-	UFUNCTION (BlueprintCallable)
+	void Arm();
 	void Disarm();
 
+	UFUNCTION (BlueprintCallable)
+	void AttachWeaponToBack();
 	UFUNCTION(BlueprintCallable)
-	void Arm();
-
-	UFUNCTION(BlueprintCallable)
+	void AttachWeaponToHand();
+	UFUNCTION(BlueprintCallable) 
 	void FinishEquipping();
-	//-----------------------------------------------------------------------------
 
 private:
 	//--------------------------------States---------------------------------------
@@ -89,9 +86,7 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	EActionState ActionState = EActionState::EAS_Unoccupied;
-	//-----------------------------------------------------------------------------
-
-
+	//----------------------------Character Components-----------------------------
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
@@ -112,7 +107,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
-	//-----------------------------------------------------------------------------
 	
 public: //Setters and Getters
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
