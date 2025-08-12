@@ -23,7 +23,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	//-------------------------------Combat----------------------------------------
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual void Attack(const FInputActionValue& Value); //For MainCharacter to inherit
 	virtual void Attack(); //For Enemy to inherit
 	virtual void Die();
@@ -36,9 +37,18 @@ protected:
 	virtual void AttackEnd();
 	virtual bool CanAttack();
 	bool IsAlive();
+	//-------------------------------Montage---------------------------------------
 	void PlayHitReactMontage(const FName& SectionName);
 	virtual int32 PlayAttackMontage(bool isMultiAttack = false);
 	virtual int32 PlayDeathMontage();
+	void StopAttackMontage();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTranslationWarpTarget();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetRotationWarpTarget();
+
 	UFUNCTION(BlueprintCallable) // BlueprintCallable to call it with anim notifies
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 
@@ -48,13 +58,13 @@ protected:
 	UAttributeComponent* Attributes;
 
 	//--------------------------------Animation Montages---------------------------
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* AttackMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* HitReactMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* DeathMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -63,13 +73,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FName> DeathMontageSections;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat") //Just to ensure it does not start uninitialised
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double WarpTargetDistance = 75.f;
 private:
 	void PlayAnimMontageSection(UAnimMontage* Montage, const FName& SectionName);
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 
-	UPROPERTY(EditAnywhere, Category = Sounds)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	USoundBase* HitSound;
 	
-	UPROPERTY(EditAnywhere, Category = VisualEffects)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	UParticleSystem* HitParticles;
 };

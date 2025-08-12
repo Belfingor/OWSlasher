@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GroomComponent.h"
 #include "Items/Item.h"
@@ -24,6 +25,12 @@ AMainCharacter::AMainCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 420.f, 0.f);
+
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	CameraBoom->SetupAttachment(GetRootComponent());
@@ -64,6 +71,13 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
+{
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	ActionState = EActionState::EAS_HitReaction;
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -76,8 +90,9 @@ void AMainCharacter::BeginPlay()
 		}
 	}
 
-	Tags.Add(FName("MainCharacter"));
+	Tags.Add(FName("EngageableTarget"));
 }
+
 
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
@@ -229,7 +244,7 @@ void AMainCharacter::PlayEquipMontage(const FName& SectionName)
 	}
 }
 
-void AMainCharacter::EquipWeapon(AWeapon* Weapon, FName &HandSocketName)
+void AMainCharacter::EquipWeapon(AWeapon* Weapon, const FName &HandSocketName)
 {
 	switch (Weapon->GetWeaponType())
 	{
@@ -325,6 +340,11 @@ void AMainCharacter::AttachWeaponToHand()
 }
 
 void AMainCharacter::FinishEquipping()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::HitReactEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
 }

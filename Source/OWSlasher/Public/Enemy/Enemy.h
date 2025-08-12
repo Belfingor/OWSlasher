@@ -25,7 +25,7 @@ public:
 	// </AActor>
 
 	// <IHitInterface>
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;\
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	// </IHitInterface>
 
 protected:
@@ -84,9 +84,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AWeapon> WeaponClass;
-	
-	UPROPERTY() //Just to ensure it does not start uninitialised
-	AActor* CombatTarget;
 	
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 1000.f;

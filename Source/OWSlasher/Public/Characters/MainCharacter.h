@@ -26,6 +26,7 @@ public:
 	AMainCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -65,7 +66,7 @@ protected:
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
 	void PlayEquipMontage(const FName& SectionName);
 	//---------------------------------Combat-------------------------------------
-	void EquipWeapon(AWeapon* Weapon, FName& HandSocketName);
+	void EquipWeapon(AWeapon* Weapon, const FName& HandSocketName);
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;
 	bool CanDisarm();
@@ -79,6 +80,8 @@ protected:
 	void AttachWeaponToHand();
 	UFUNCTION(BlueprintCallable) 
 	void FinishEquipping();
+	UFUNCTION(BlueprintCallable)
+	void HitReactEnd();
 
 private:
 	//--------------------------------States---------------------------------------
