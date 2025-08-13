@@ -10,9 +10,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GroomComponent.h"
+#include "Components/AttributeComponent.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "HUD/SlashHUD.h"
+#include "HUD/SlashOverlay.h"
 
 
 AMainCharacter::AMainCharacter()
@@ -78,6 +81,12 @@ void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* H
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(DamageAmount);
+	return DamageAmount;
+}
+
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -91,8 +100,8 @@ void AMainCharacter::BeginPlay()
 	}
 
 	Tags.Add(FName("EngageableTarget"));
+	InitSlashOverlay();
 }
-
 
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
@@ -347,5 +356,25 @@ void AMainCharacter::FinishEquipping()
 void AMainCharacter::HitReactEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::InitSlashOverlay()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		ASlashHUD* SlashHUD = Cast<ASlashHUD>(PlayerController->GetHUD());
+		if (SlashHUD)
+		{
+			SlashOverlay = SlashHUD->GetSlashOverlay();
+			if (SlashOverlay && Attributes)
+			{
+				SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+				SlashOverlay->SetStaminaBarPercent(1.f);
+				SlashOverlay->SetGoldTextCount(0);
+				SlashOverlay->SetSoulsTextCount(0);
+			}
+		}
+	}
 }
 

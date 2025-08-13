@@ -45,11 +45,11 @@ void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* H
 
 void ABaseCharacter::Attack(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Called with value"));
+
 }
 void ABaseCharacter::Attack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Called without value"));
+
 }
 
 void ABaseCharacter::Die()

@@ -61,7 +61,6 @@ void ABird::Move(const FInputActionValue& Value)
 
 void ABird::Look(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AI_Look triggered"));
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 	if (GetController())
 	{
