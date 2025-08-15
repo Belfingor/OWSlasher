@@ -16,7 +16,7 @@ class OWSLASHER_API ASlashHUD : public AHUD
 	GENERATED_BODY()
 
 protected:
-	virtual void PreInitializeComponents() override;
+	virtual void PreInitializeComponents() override; //if using BeginPlay() it will init after MainCharacter and will end up passing nullptr
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Slash")

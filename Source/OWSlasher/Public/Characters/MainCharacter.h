@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "MainCharacter.generated.h"
 
 
@@ -14,12 +15,13 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
+class ASoul;
 class UAnimMontage;
 class USlashOverlay;
 
 
 UCLASS()
-class OWSLASHER_API AMainCharacter : public ABaseCharacter
+class OWSLASHER_API AMainCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -27,8 +29,12 @@ public:
 	AMainCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual void Jump() override;
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual void SetOverlappingItem(AItem* Item) override;
+	virtual void AddSouls(ASoul* Soul) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,6 +81,7 @@ protected:
 	bool CanArm();
 	void Arm();
 	void Disarm();
+	virtual void Die() override;
 
 	UFUNCTION (BlueprintCallable)
 	void AttachWeaponToBack();
@@ -86,7 +93,9 @@ protected:
 	void HitReactEnd();
 
 private:
+	bool IsUnoccupied();
 	void InitSlashOverlay();
+	void SetHUDHealth();
 	//--------------------------------States---------------------------------------
 	ECharacterState CharacterState = ECharacterState::ECS_Unequiped;
 
@@ -118,6 +127,7 @@ private:
 	USlashOverlay* SlashOverlay;
 
 public: //Setters and Getters
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	//ORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };
