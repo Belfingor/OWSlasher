@@ -24,6 +24,7 @@ class OWSLASHER_API IPickupInterface
 public:
 	virtual void SetOverlappingItem(class AItem* Item);
 	virtual void AddSouls(class ASoul* Soul);
+	virtual void AddGold(class ATreasure* Treasure);
 
 	/*UFUNCTION(BluePrintNativeEvent)
 	void PickUp(AActor* OverlappingActor);*/
