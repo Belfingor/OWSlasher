@@ -11,6 +11,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Items/Weapons/Weapon.h"
+#include "Items/Soul.h"
+#include "Items/HealingPotion.h"
 
 AEnemy::AEnemy()
 {
@@ -97,13 +99,41 @@ void AEnemy::Die()
 	Super::Die();
 
 	EnemyState = EEnemyState::EES_Dead;
-	
 	ClearAttackTimer();
 	HideHealthBar();
 	DisableCapsule();
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	SpawnSoul();
+	TrySpawnHealingPotion();
+}
+
+void AEnemy::SpawnSoul()
+{
+	UWorld* World = GetWorld();
+	if (World && SoulClass && Attributes )
+	{
+		ASoul* SpawnedSoul = World->SpawnActorDeferred<ASoul>(SoulClass, GetActorTransform());
+		// Have to call Deferred spawn function to set value before spawning. Otherwise may spawn without SoulValue being set.
+		if (SpawnedSoul)
+		{
+			SpawnedSoul->SetSoulValue(Attributes->GetSouls());
+			SpawnedSoul->FinishSpawning(GetActorTransform());
+		}
+	}
+}
+
+void AEnemy::TrySpawnHealingPotion()
+{
+	UWorld* World = GetWorld();
+	if (World && PotionClass && Attributes)
+	{
+		if (FMath::RandRange(.0f, 1.f) <= HealthPotionDropChance)
+		{
+			AHealingPotion* SpawnedPotion = World->SpawnActor<AHealingPotion>(PotionClass, GetActorTransform());
+		}
+	}
 }
 
 void AEnemy::Attack()

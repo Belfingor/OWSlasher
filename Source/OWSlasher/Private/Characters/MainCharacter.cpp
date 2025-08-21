@@ -15,6 +15,7 @@
 #include "Items/Weapons/Weapon.h"
 #include "Items/Soul.h"
 #include "Items/Treasure.h"
+#include "Items/HealingPotion.h"
 #include "Animation/AnimMontage.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
@@ -57,7 +58,11 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->RegenStamina(DeltaTime);
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
 }
 
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -73,6 +78,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(FPressAction, ETriggerEvent::Triggered, this, &AMainCharacter::FKeyPressed);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		EnhancedInputComponent->BindAction(MultiAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::MultiAttack);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &AMainCharacter::Dodge);
 	}
 }
 
@@ -114,6 +120,15 @@ void AMainCharacter::AddGold(ATreasure* Treasure)
 	{
 		Attributes->AddGold(Treasure->GetGold());
 		SlashOverlay->SetGoldTextCount(Attributes->GetGold());
+	}
+}
+
+void AMainCharacter::AddHealth(AHealingPotion* Potion)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->AddHealth(Potion->GetPotionHealthAmount());
+		SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
 	}
 }
 
@@ -250,6 +265,19 @@ void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 	}
 }
 
+void AMainCharacter::Dodge(const FInputActionValue& Value)
+{
+	if (IsOccupied() || !HasEnoughStaminaToDodge()) { return; }
+
+	ActionState = EActionState::EAS_Dodge;
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->UseStamina(Attributes->GetDodgeCost());
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+	PlayDodgeMontage();
+}
+
 int32 AMainCharacter::PlayAttackMontage(bool isMultiAttack)
 {
 	Super::PlayAttackMontage(isMultiAttack);
@@ -311,6 +339,13 @@ void AMainCharacter::EquipWeapon(AWeapon* Weapon, const FName &HandSocketName)
 
 void AMainCharacter::AttackEnd() // Calling it in Attack Anim Montage as notify
 {
+	Super::AttackEnd();
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::DodgeEnd()
+{
+	Super::DodgeEnd();
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
@@ -333,6 +368,16 @@ bool AMainCharacter::CanArm()
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState == ECharacterState::ECS_Unequiped &&
 		EquippedWeapon;
+}
+
+bool AMainCharacter::HasEnoughStaminaToDodge()
+{
+	return Attributes && Attributes->GetStamina() > Attributes->GetDodgeCost();
+}
+
+bool AMainCharacter::IsOccupied()
+{
+	return ActionState != EActionState::EAS_Unoccupied;
 }
 
 void AMainCharacter::Arm()

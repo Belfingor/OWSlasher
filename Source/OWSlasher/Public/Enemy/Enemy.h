@@ -9,6 +9,7 @@
 
 class UHealthBarComponent;
 class UPawnSensingComponent;
+class AAIController;
 
 UCLASS()
 class OWSLASHER_API AEnemy : public ABaseCharacter
@@ -35,6 +36,8 @@ protected:
 
 	// <ABaseCharacter>
 	virtual void Die() override;
+	void SpawnSoul();
+	void TrySpawnHealingPotion();
 	virtual void Attack() override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override;
@@ -73,10 +76,10 @@ private:
 	void SpawnDefaultWeapon();
 
 	UPROPERTY(VisibleAnywhere)
-	UHealthBarComponent* HealthBarWidget;
+	TObjectPtr<UHealthBarComponent> HealthBarWidget;
 
 	UPROPERTY(VisibleAnywhere)
-	UPawnSensingComponent* PawnSensing;
+	TObjectPtr<UPawnSensingComponent> PawnSensing;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AWeapon> WeaponClass;
@@ -91,10 +94,10 @@ private:
 	double PatrolRadius = 200.f;
 	
 	UPROPERTY() //Always give UPROPERTY to Actor pointers when declaring them.
-	class AAIController* EnemyController;
+	TObjectPtr<AAIController> EnemyController;
 	
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
-	AActor* PatrolTarget; //Current Patrol Target
+	TObjectPtr<AActor> PatrolTarget; //Current Patrol Target
 	
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<AActor*> PatrolTargets;
@@ -106,21 +109,30 @@ private:
 	
 	float PatrolWaitMax = 10.f;
 	
-	UPROPERTY(EditAnywhere, Category = Combat)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float PatrolingMoveSpeed = 130.f;
 	
 	FTimerHandle AttackTimer;
 	
-	UPROPERTY(EditAnywhere, Category = Combat)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackTimerMin = 0.5f;
 	
-	UPROPERTY(EditAnywhere, Category = Combat)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackTimerMax = 1.f;
 	
-	UPROPERTY(EditAnywhere, Category = Combat)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float ChasingMoveSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float DeathLifeSpan = 8.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float HealthPotionDropChance = .5f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<class ASoul> SoulClass;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<class AHealingPotion> PotionClass;
 
 };

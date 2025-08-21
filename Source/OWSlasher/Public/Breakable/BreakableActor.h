@@ -8,6 +8,7 @@
 #include "BreakableActor.generated.h"
 
 class UGeometryCollectionComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class OWSLASHER_API ABreakableActor : public AActor, public IHitInterface
@@ -24,10 +25,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BLueprintReadWrite)
-	UGeometryCollectionComponent* GeometryCollection;
+	TObjectPtr<UGeometryCollectionComponent> GeometryCollection;
 
 	UPROPERTY(VisibleAnywhere, BLueprintReadWrite)
-	class UCapsuleComponent* Capsule;
+	TObjectPtr<UCapsuleComponent> Capsule;
 
 private:
 	

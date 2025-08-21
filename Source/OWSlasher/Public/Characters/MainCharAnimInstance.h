@@ -7,6 +7,9 @@
 #include "CharacterTypes.h"
 #include "MainCharAnimInstance.generated.h"
 
+
+class AMainCharacter;
+class UCharacterMovementComponent;
 /**
  * 
  */
@@ -20,10 +23,10 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 	
 	UPROPERTY(BlueprintReadOnly)
-	class AMainCharacter* MainCharacter;
+	TObjectPtr<AMainCharacter> MainCharacter;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	class UCharacterMovementComponent* MainCharacterMovementComponent;
+	TObjectPtr<UCharacterMovementComponent> MainCharacterMovementComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float GroundSpeed = 0;

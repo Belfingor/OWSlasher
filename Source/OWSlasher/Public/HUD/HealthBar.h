@@ -18,6 +18,6 @@ class OWSLASHER_API UHealthBar : public UUserWidget
 	
 public:
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar* HealthBar;
+	TObjectPtr<UProgressBar> HealthBar;
 
 };

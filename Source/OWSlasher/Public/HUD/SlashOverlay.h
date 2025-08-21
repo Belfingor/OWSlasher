@@ -6,6 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "SlashOverlay.generated.h"
 
+
+class UProgressBar;
+class UTextBlock;
 /**
  * 
  */
@@ -23,14 +26,14 @@ public:
 
 private:
 	UPROPERTY (meta = (BindWidget))
-	class UProgressBar* HealthProgressBar;
+	TObjectPtr<UProgressBar> HealthProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* StaminaProgressBar;
+	TObjectPtr<UProgressBar> StaminaProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* GoldText;
+	TObjectPtr<UTextBlock> GoldText;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* SoulsText;
+	TObjectPtr<UTextBlock> SoulsText;
 };

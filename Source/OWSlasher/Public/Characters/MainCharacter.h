@@ -17,6 +17,7 @@ class UGroomComponent;
 class AItem;
 class ASoul;
 class ATreassure;
+class AHealingPotion;
 class UAnimMontage;
 class USlashOverlay;
 
@@ -37,33 +38,37 @@ public:
 	virtual void SetOverlappingItem(AItem* Item) override;
 	virtual void AddSouls(ASoul* Soul) override;
 	virtual void AddGold(ATreasure* Treasure) override;
+	virtual void AddHealth(AHealingPotion* Potion) override;
 
 protected:
 	virtual void BeginPlay() override;
 	//-------------------------------Input Maping----------------------------------
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* CharMappingContext;
+	TObjectPtr<UInputMappingContext> CharMappingContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* MovementAction;
+	TObjectPtr<UInputAction> MovementAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* LookAction;
+	TObjectPtr<UInputAction> LookAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* JumpAction;
+	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* EquipAction;
+	TObjectPtr<UInputAction> EquipAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* AttackAction;
+	TObjectPtr<UInputAction> AttackAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* MultiAttackAction;
+	TObjectPtr<UInputAction> MultiAttackAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* FPressAction;
+	TObjectPtr<UInputAction> FPressAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> DodgeAction;
 	//-------------------------Callbacks for input--------------------------------
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -71,6 +76,7 @@ protected:
 	void FKeyPressed(const FInputActionValue& Value);
 	virtual void Attack(const FInputActionValue& Value) override;
 	void MultiAttack(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 	//-------------------------Play Montage Functions-----------------------------
 	virtual int32 PlayAttackMontage(bool isMultiAttack) override;
 	void PlayTwoHandedAttackMontage(bool isMultiAttack);
@@ -78,9 +84,12 @@ protected:
 	//---------------------------------Combat-------------------------------------
 	void EquipWeapon(AWeapon* Weapon, const FName& HandSocketName);
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	bool CanDisarm();
 	bool CanArm();
+	bool HasEnoughStaminaToDodge();
+	bool IsOccupied();
 	void Arm();
 	void Disarm();
 	virtual void Die() override;
@@ -105,31 +114,30 @@ private:
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 	//----------------------------Character Components-----------------------------
 	UPROPERTY(VisibleAnywhere)
-	USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* ViewCamera;
+	TObjectPtr<UCameraComponent> ViewCamera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Hair")
-	UGroomComponent* Hair;
+	TObjectPtr<UGroomComponent> Hair;
 
 	UPROPERTY(VisibleAnywhere, Category = "Hair")
-	UGroomComponent* Eyebrows;
+	TObjectPtr<UGroomComponent> Eyebrows;
 
 	UPROPERTY(VisibleInstanceOnly)
-	AItem* OverlappingItem;
+	TObjectPtr<AItem> OverlappingItem;
 	//---------------------------Animation Montages--------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* TwoHandedAttackMontage;
+	TObjectPtr<UAnimMontage> TwoHandedAttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* EquipMontage;
+	TObjectPtr<UAnimMontage> EquipMontage;
 	
 	UPROPERTY()
-	USlashOverlay* SlashOverlay;
+	TObjectPtr<USlashOverlay> SlashOverlay;
 
 public: //Setters and Getters
-	//ORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };

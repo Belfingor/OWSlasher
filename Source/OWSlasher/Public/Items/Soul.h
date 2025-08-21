@@ -23,4 +23,5 @@ private:
 
 public:
 	FORCEINLINE int32 GetSouls() const { return Souls; }
+	FORCEINLINE void SetSoulValue(int32 Value) { Souls = Value; }
 };

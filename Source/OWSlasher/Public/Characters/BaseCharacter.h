@@ -36,6 +36,8 @@ protected:
 	void DisableCapsule();
 	UFUNCTION(BlueprintCallable) // BlueprintCallable to call it with anim notifies
 	virtual void AttackEnd();
+	UFUNCTION(BlueprintCallable)
+	virtual void DodgeEnd();
 	virtual bool CanAttack();
 	bool IsAlive();
 	void DisableMeshCollision();
@@ -43,6 +45,7 @@ protected:
 	void PlayHitReactMontage(const FName& SectionName);
 	virtual int32 PlayAttackMontage(bool isMultiAttack = false);
 	virtual int32 PlayDeathMontage();
+	virtual void PlayDodgeMontage();
 	void StopAttackMontage();
 
 	UFUNCTION(BlueprintCallable)
@@ -55,19 +58,22 @@ protected:
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	AWeapon* EquippedWeapon;
+	TObjectPtr<AWeapon> EquippedWeapon;
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UAttributeComponent* Attributes;
+	TObjectPtr<UAttributeComponent> Attributes;
 
 	//--------------------------------Animation Montages---------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	UAnimMontage* AttackMontage;
+	TObjectPtr<UAnimMontage> AttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	UAnimMontage* HitReactMontage;
+	TObjectPtr<UAnimMontage> HitReactMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	UAnimMontage* DeathMontage;
+	TObjectPtr<UAnimMontage> DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TObjectPtr<UAnimMontage> DodgeMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FName> AttackMontageSections;
@@ -76,7 +82,7 @@ protected:
 	TArray<FName> DeathMontageSections;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat") //Just to ensure it does not start uninitialised
-	AActor* CombatTarget;
+	TObjectPtr<AActor> CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	double WarpTargetDistance = 75.f;
@@ -89,10 +95,10 @@ private:
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	USoundBase* HitSound;
+	TObjectPtr<USoundBase> HitSound;
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	UParticleSystem* HitParticles;
+	TObjectPtr<UParticleSystem> HitParticles;
 
 public:
 	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }

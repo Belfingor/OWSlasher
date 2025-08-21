@@ -143,6 +143,11 @@ void ABaseCharacter::AttackEnd()
 
 }
 
+void ABaseCharacter::DodgeEnd()
+{
+
+}
+
 bool ABaseCharacter::CanAttack()
 {
 	return false;
@@ -184,6 +189,11 @@ int32 ABaseCharacter::PlayDeathMontage()
 	}
 
 	return Selection;
+}
+
+void ABaseCharacter::PlayDodgeMontage()
+{
+	PlayAnimMontageSection(DodgeMontage, FName("Default")); 
 }
 
 void ABaseCharacter::StopAttackMontage()
