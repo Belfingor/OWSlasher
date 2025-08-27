@@ -83,6 +83,11 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 	ClearAttackTimer();
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 	StopAttackMontage();
+
+	if (IsInsideAttackRadius() && !IsDead())
+	{
+		StartAttackTimer();
+	}
 }
 
 void AEnemy::BeginPlay()
@@ -316,7 +321,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 	if (EnemyController == nullptr || Target == nullptr) return;
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(50.f);
+	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 	EnemyController->MoveTo(MoveRequest);
 }
 
@@ -361,7 +366,7 @@ void AEnemy::SpawnDefaultWeapon()
 	if (World && WeaponClass) //As soon as we are not picking weapon up (like main char), it needs to be spawned and attached with enemy.
 	{
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
-		DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		DefaultWeapon->Equip(GetMesh(), FName("WeaponSocket"), this, this);
 		EquippedWeapon = DefaultWeapon;
 	}
 }

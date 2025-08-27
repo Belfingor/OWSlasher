@@ -81,17 +81,20 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UPawnSensingComponent> PawnSensing;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class AWeapon> WeaponClass;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	double CombatRadius = 1000.f;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	double AttackRadius = 150.f;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	double PatrolRadius = 200.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double AcceptanceRadius = 50.f;
 	
 	UPROPERTY() //Always give UPROPERTY to Actor pointers when declaring them.
 	TObjectPtr<AAIController> EnemyController;
