@@ -194,6 +194,11 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 
 	if (OverlappingWeapon)
 	{
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->Destroy();
+		}
+		
 		EquipWeapon(OverlappingWeapon, HandSocketName);
 	}
 }
@@ -412,9 +417,9 @@ void AMainCharacter::Disarm()
 	}	
 }
 
-void AMainCharacter::Die()
+void AMainCharacter::Die_Implementation()
 {
-	Super::Die();
+	Super::Die_Implementation();
 
 	ActionState = EActionState::EAS_Dead;
 

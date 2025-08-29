@@ -92,7 +92,7 @@ protected:
 	bool IsOccupied();
 	void Arm();
 	void Disarm();
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 
 	UFUNCTION (BlueprintCallable)
 	void AttachWeaponToBack();

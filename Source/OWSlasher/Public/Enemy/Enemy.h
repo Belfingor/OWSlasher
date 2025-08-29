@@ -35,7 +35,7 @@ protected:
 	// </AActor>
 
 	// <ABaseCharacter>
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	void SpawnSoul();
 	void TrySpawnHealingPotion();
 	virtual void Attack() override;

@@ -99,9 +99,9 @@ void AEnemy::BeginPlay()
 	Tags.Add(FName("Enemy"));
 }
 
-void AEnemy::Die()
+void AEnemy::Die_Implementation()
 {
-	Super::Die();
+	Super::Die_Implementation();
 
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
@@ -119,12 +119,12 @@ void AEnemy::SpawnSoul()
 	UWorld* World = GetWorld();
 	if (World && SoulClass && Attributes )
 	{
-		ASoul* SpawnedSoul = World->SpawnActorDeferred<ASoul>(SoulClass, GetActorTransform());
-		// Have to call Deferred spawn function to set value before spawning. Otherwise may spawn without SoulValue being set.
+		const FVector SpawnLocation = GetActorLocation() + FVector(.0f, 0.f, 125.f);
+		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
 		if (SpawnedSoul)
 		{
 			SpawnedSoul->SetSoulValue(Attributes->GetSouls());
-			SpawnedSoul->FinishSpawning(GetActorTransform());
+			SpawnedSoul->SetOwner(this);
 		}
 	}
 }
