@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -130,7 +130,7 @@ private:
 	float DeathLifeSpan = 8.f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float HealthPotionDropChance = .5f;
+	float HealthPotionDropChance = .2f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class ASoul> SoulClass;

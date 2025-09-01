@@ -158,7 +158,8 @@ void AMainCharacter::BeginPlay()
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
 	if (ActionState != EActionState::EAS_Unoccupied) return; // Prevent movement while attacking
-	const FVector2D MovementVector = Value.Get<FVector2D>();	
+	const FVector2D MovementVector = Value.Get<FVector2D>();
+	SetDodgeDirection(MovementVector);
 	if ((MovementVector.Y != 0.f)|| (MovementVector.X != 0.f) && GetController())
 	{
 		const FRotator ControlRotation = GetControlRotation();
@@ -172,8 +173,6 @@ void AMainCharacter::Move(const FInputActionValue& Value)
 		FVector Right = GetActorRightVector();
 		AddMovementInput(SideDirection, MovementVector.X);
 	}
-	
-
 }
 
 void AMainCharacter::Look(const FInputActionValue& Value)
@@ -224,6 +223,7 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 	Super::Attack(Value);
 	if (CanAttack())
 	{
+		RotateCharacterToMatchCamera();
 		switch (CharacterState)
 		{
 		case ECharacterState::ECS_EquippedOneHandedWeapon:
@@ -238,22 +238,16 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 			break;
 		}
 	}
-	//----------------------------------------------------------------------------- temp solution to rotate character when attacking
-	const FRotator ControlRotation = GetControlRotation();
-	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-	SetActorRotation(YawRotation);
-	//-----------------------------------------------------------------------------
+	else if (ActionState == EActionState::EAS_Attacking)
+	{
+		RotateCharacterToMatchCamera();
+	}
 }
 
 void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 {
 	if (CanAttack())
 	{
-		//----------------------------------------------------------------------------- temp solution to rotate character when attacking
-		const FRotator ControlRotation = GetControlRotation(); 
-		const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-		SetActorRotation(YawRotation);
-		//-----------------------------------------------------------------------------
 		switch (CharacterState)
 		{
 		case ECharacterState::ECS_EquippedOneHandedWeapon:
@@ -268,6 +262,10 @@ void AMainCharacter::MultiAttack(const FInputActionValue& Value)
 			break;
 		}
 	}
+	if (ActionState == EActionState::EAS_MultiAttacking)
+	{
+		RotateCharacterToMatchCamera();
+	}
 }
 
 void AMainCharacter::Dodge(const FInputActionValue& Value)
@@ -280,6 +278,7 @@ void AMainCharacter::Dodge(const FInputActionValue& Value)
 		Attributes->UseStamina(Attributes->GetDodgeCost());
 		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
 	}
+	RotateCharacterForDodge();
 	PlayDodgeMontage();
 }
 
@@ -351,6 +350,7 @@ void AMainCharacter::AttackEnd() // Calling it in Attack Anim Montage as notify
 void AMainCharacter::DodgeEnd()
 {
 	Super::DodgeEnd();
+	DodgeDirection = EDodgeDirection::EDD_None;
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
@@ -484,4 +484,59 @@ void AMainCharacter::SetHUDHealth()
 	{
 		SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
 	}
+}
+
+void AMainCharacter::SetDodgeDirection(FVector2D Value)
+{
+	if (Value.Y > 0)
+	{
+		DodgeDirection = EDodgeDirection::EDD_Forward;
+	}
+	else if (Value.Y < 0)
+	{
+		DodgeDirection = EDodgeDirection::EDD_Backward;
+	}
+	else if (Value.X > 0)
+	{
+		DodgeDirection = EDodgeDirection::EDD_Right;
+	}
+	else if (Value.X < 0)
+	{
+		DodgeDirection = EDodgeDirection::EDD_Left;
+	}
+	else
+	{
+		DodgeDirection = EDodgeDirection::EDD_None;
+	}
+}
+
+void AMainCharacter::RotateCharacterForDodge()
+{
+	const FRotator ControlRotation = GetControlRotation();
+	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
+
+	switch (DodgeDirection)
+	{
+	case EDodgeDirection::EDD_Forward:
+		SetActorRotation(YawRotation);
+		break;
+	case EDodgeDirection::EDD_Backward:
+		SetActorRotation(YawRotation - FRotator(0.f, 180.f, 0.f));
+		break;
+	case EDodgeDirection::EDD_Left:
+		SetActorRotation(YawRotation - FRotator(0.f, 90.f, 0.f));
+		break;
+	case EDodgeDirection::EDD_Right:
+		SetActorRotation(YawRotation + FRotator(0.f, 90.f, 0.f));
+		break;
+	default:
+		break;
+	}
+}
+
+void AMainCharacter::RotateCharacterToMatchCamera()
+{
+	const FRotator ControlRotation = GetControlRotation();
+	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
+	SetActorRotation(YawRotation);
 }

@@ -21,6 +21,14 @@ class AHealingPotion;
 class UAnimMontage;
 class USlashOverlay;
 
+enum class EDodgeDirection : uint8
+{
+	EDD_None,
+	EDD_Forward,
+	EDD_Backward,
+	EDD_Left,
+	EDD_Right
+};
 
 UCLASS()
 class OWSLASHER_API AMainCharacter : public ABaseCharacter, public IPickupInterface
@@ -107,6 +115,9 @@ private:
 	bool IsUnoccupied();
 	void InitSlashOverlay();
 	void SetHUDHealth();
+	void SetDodgeDirection(FVector2D Value);
+	void RotateCharacterForDodge();
+	void RotateCharacterToMatchCamera();
 	//--------------------------------States---------------------------------------
 	ECharacterState CharacterState = ECharacterState::ECS_Unequiped;
 
@@ -136,6 +147,8 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<USlashOverlay> SlashOverlay;
+
+	EDodgeDirection DodgeDirection = EDodgeDirection::EDD_None;
 
 public: //Setters and Getters
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }

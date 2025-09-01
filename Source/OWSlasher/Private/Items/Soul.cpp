@@ -23,7 +23,7 @@ void ASoul::BeginPlay()
 		ObjectTypes,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::Persistent,
+		EDrawDebugTrace::None,
 		OutHit,
 		true
 	);
