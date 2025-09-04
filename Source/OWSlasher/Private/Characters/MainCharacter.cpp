@@ -19,6 +19,8 @@
 #include "Animation/AnimMontage.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
+#include "Containers/Map.h"
+#include "RHIResourceReplace.h"
 
 
 AMainCharacter::AMainCharacter()
@@ -52,7 +54,6 @@ AMainCharacter::AMainCharacter()
 	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("Head");
-
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -153,6 +154,7 @@ void AMainCharacter::BeginPlay()
 
 	Tags.Add(FName("EngageableTarget"));
 	InitSlashOverlay();
+	PopulateDodgeMap();
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
@@ -488,26 +490,9 @@ void AMainCharacter::SetHUDHealth()
 
 void AMainCharacter::SetDodgeDirection(FVector2D Value)
 {
-	if (Value.Y > 0)
-	{
-		DodgeDirection = EDodgeDirection::EDD_Forward;
-	}
-	else if (Value.Y < 0)
-	{
-		DodgeDirection = EDodgeDirection::EDD_Backward;
-	}
-	else if (Value.X > 0)
-	{
-		DodgeDirection = EDodgeDirection::EDD_Right;
-	}
-	else if (Value.X < 0)
-	{
-		DodgeDirection = EDodgeDirection::EDD_Left;
-	}
-	else
-	{
-		DodgeDirection = EDodgeDirection::EDD_None;
-	}
+
+	TPair<double, double> Key(Value.X, Value.Y);
+	DodgeDirection = *DodgeMap.Find(Key);
 }
 
 void AMainCharacter::RotateCharacterForDodge()
@@ -515,23 +500,7 @@ void AMainCharacter::RotateCharacterForDodge()
 	const FRotator ControlRotation = GetControlRotation();
 	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
 
-	switch (DodgeDirection)
-	{
-	case EDodgeDirection::EDD_Forward:
-		SetActorRotation(YawRotation);
-		break;
-	case EDodgeDirection::EDD_Backward:
-		SetActorRotation(YawRotation - FRotator(0.f, 180.f, 0.f));
-		break;
-	case EDodgeDirection::EDD_Left:
-		SetActorRotation(YawRotation - FRotator(0.f, 90.f, 0.f));
-		break;
-	case EDodgeDirection::EDD_Right:
-		SetActorRotation(YawRotation + FRotator(0.f, 90.f, 0.f));
-		break;
-	default:
-		break;
-	}
+	SetActorRotation(YawRotation - FRotator(0.f, *DodgeYawOffset.Find(DodgeDirection), 0.f));
 }
 
 void AMainCharacter::RotateCharacterToMatchCamera()
@@ -539,4 +508,26 @@ void AMainCharacter::RotateCharacterToMatchCamera()
 	const FRotator ControlRotation = GetControlRotation();
 	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
 	SetActorRotation(YawRotation);
+}
+
+void AMainCharacter::PopulateDodgeMap()
+{
+	DodgeMap.Add(TPair <double, double> (0, 0), EDodgeDirection::EDD_None);
+	DodgeMap.Add(TPair<double, double>(0, 1), EDodgeDirection::EDD_Forward);
+	DodgeMap.Add(TPair<double, double>(-1, 1), EDodgeDirection::EDD_ForwardLeft);
+	DodgeMap.Add(TPair<double, double>(1, 1), EDodgeDirection::EDD_ForwardRight);
+	DodgeMap.Add(TPair<double, double>(0, -1), EDodgeDirection::EDD_Backward);
+	DodgeMap.Add(TPair<double, double>(-1, -1), EDodgeDirection::EDD_BackwardLeft);
+	DodgeMap.Add(TPair<double, double>(1, -1), EDodgeDirection::EDD_BackwardRight);
+	DodgeMap.Add(TPair<double, double>(-1, 0), EDodgeDirection::EDD_Left);
+	DodgeMap.Add(TPair<double, double>(1, 0), EDodgeDirection::EDD_Right);
+
+	DodgeYawOffset.Add(EDodgeDirection::EDD_Forward, 0.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_ForwardLeft, 45.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_ForwardRight, -45.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_Backward, 180.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_BackwardLeft, 135.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_BackwardRight, -135.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_Left, 90.f);
+	DodgeYawOffset.Add(EDodgeDirection::EDD_Right, -90.f);
 }

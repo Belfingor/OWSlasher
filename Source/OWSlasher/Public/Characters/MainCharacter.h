@@ -25,7 +25,11 @@ enum class EDodgeDirection : uint8
 {
 	EDD_None,
 	EDD_Forward,
+	EDD_ForwardLeft,
+	EDD_ForwardRight,
 	EDD_Backward,
+	EDD_BackwardLeft,
+	EDD_BackwardRight,
 	EDD_Left,
 	EDD_Right
 };
@@ -118,6 +122,7 @@ private:
 	void SetDodgeDirection(FVector2D Value);
 	void RotateCharacterForDodge();
 	void RotateCharacterToMatchCamera();
+	void PopulateDodgeMap();
 	//--------------------------------States---------------------------------------
 	ECharacterState CharacterState = ECharacterState::ECS_Unequiped;
 
@@ -149,6 +154,8 @@ private:
 	TObjectPtr<USlashOverlay> SlashOverlay;
 
 	EDodgeDirection DodgeDirection = EDodgeDirection::EDD_None;
+	TMap<TPair<double, double>, EDodgeDirection> DodgeMap;
+	TMap<EDodgeDirection, float> DodgeYawOffset;
 
 public: //Setters and Getters
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
