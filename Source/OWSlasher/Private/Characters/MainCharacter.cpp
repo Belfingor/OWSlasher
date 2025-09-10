@@ -206,17 +206,19 @@ void AMainCharacter::EKeyPressed(const FInputActionValue& Value)
 
 void AMainCharacter::FKeyPressed(const FInputActionValue& Value)
 {
-
-	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
+	if (EquippedWeapon)
 	{
-		if (CanDisarm()) Disarm();
-		else if (CanArm()) Arm();
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_OneHanded)
+		{
+			if (CanDisarm()) Disarm();
+			else if (CanArm()) Arm();
 
-	}
-	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
-	{
-		if (CanDisarm()) Disarm();
-		else if (CanArm()) Arm();
+		}
+		else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_TwoHanded)
+		{
+			if (CanDisarm()) Disarm();
+			else if (CanArm()) Arm();
+		}
 	}
 }
 
