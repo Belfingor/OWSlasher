@@ -60,7 +60,7 @@ void AWeapon::DisableSphereCollision()
 
 void AWeapon::PlayEquipSound()
 {
-	if (EquipSound)
+	if (EquipSound && GetOwner()->IsA<AMainCharacter>())
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
 	}
