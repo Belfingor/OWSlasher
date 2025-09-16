@@ -4,12 +4,12 @@ There are no direct objectives in this game. However, you may still explore leve
 
 1.1 Version link: https://www.icloud.com/iclouddrive/0d3V4eTzLU-Ccsh8HJxjVL3Sg#OWSlasher_1.1
 
-Inputs:
-WASD - Movement
-Space - Jump
-LShift - Dodge (Can be combined with WASD for directional dodge)
-E - Pick up weapon
-F - Arm / Disarm
-LMS - Single hit attack
-RMS - Attack Combo
+Inputs:  
+WASD - Movement  
+Space - Jump  
+LShift - Dodge (Can be combined with WASD for directional dodge)  
+E - Pick up weapon  
+F - Arm / Disarm  
+LMS - Single hit attack  
+RMS - Attack Combo  
 Both LMS and RMS can be held during attacks to follow camera direction.
